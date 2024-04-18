@@ -1015,7 +1015,8 @@ dependencies = [
 [[package]]
 name = "iced"
 version = "0.12.1"
-source = "git+https://github.com/iced-rs/iced?rev=refs/tags/0.12.1#992572910aa33a2b2ac1ba9621b5dfeddfedb876"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7d4eb0fbbefb8c428b70680e77ed9013887b17c1d6be366b40f264f956d1a096"
 dependencies = [
  "iced_core",
  "iced_futures",
@@ -1027,8 +1028,9 @@ dependencies = [
 
 [[package]]
 name = "iced_core"
-version = "0.12.1"
-source = "git+https://github.com/iced-rs/iced?rev=refs/tags/0.12.1#992572910aa33a2b2ac1ba9621b5dfeddfedb876"
+version = "0.12.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7d7e6bbd197f311ed3d8b71651876b0ce01318fde52cda862a9a7a4373c9b930"
 dependencies = [
  "bitflags 2.5.0",
  "glam",
@@ -1044,8 +1046,9 @@ dependencies = [
 
 [[package]]
 name = "iced_futures"
-version = "0.12.1"
-source = "git+https://github.com/iced-rs/iced?rev=refs/tags/0.12.1#992572910aa33a2b2ac1ba9621b5dfeddfedb876"
+version = "0.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "370bad88fb3832cbeeb3fa6c486b4701fb7e8da32a753b3101d4ce81fc1d9497"
 dependencies = [
  "futures",
  "iced_core",
@@ -1057,7 +1060,8 @@ dependencies = [
 [[package]]
 name = "iced_graphics"
 version = "0.12.1"
-source = "git+https://github.com/iced-rs/iced?rev=refs/tags/0.12.1#992572910aa33a2b2ac1ba9621b5dfeddfedb876"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6a044c193ef0840eacabfa05424717331d1fc5b3ecb9a89316200c75da2ba9a4"
 dependencies = [
  "bitflags 2.5.0",
  "bytemuck",
@@ -1077,7 +1081,8 @@ dependencies = [
 [[package]]
 name = "iced_renderer"
 version = "0.12.1"
-source = "git+https://github.com/iced-rs/iced?rev=refs/tags/0.12.1#992572910aa33a2b2ac1ba9621b5dfeddfedb876"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5c281e03001d566058f53dec9325bbe61c62da715341206d2627f57a3ecc7f69"
 dependencies = [
  "iced_graphics",
  "iced_tiny_skia",
@@ -1089,7 +1094,8 @@ dependencies = [
 [[package]]
 name = "iced_runtime"
 version = "0.12.1"
-source = "git+https://github.com/iced-rs/iced?rev=refs/tags/0.12.1#992572910aa33a2b2ac1ba9621b5dfeddfedb876"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a79f852c01cc6d61663c94379cb3974ac3ad315a28c504e847d573e094f46822"
 dependencies = [
  "iced_core",
  "iced_futures",
@@ -1100,7 +1106,8 @@ dependencies = [
 [[package]]
 name = "iced_style"
 version = "0.12.1"
-source = "git+https://github.com/iced-rs/iced?rev=refs/tags/0.12.1#992572910aa33a2b2ac1ba9621b5dfeddfedb876"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2ea42a740915d2a5a9ff9c3aa0bca28b16e9fb660bc8f675eed71d186cadb579"
 dependencies = [
  "iced_core",
  "once_cell",
@@ -1110,7 +1117,8 @@ dependencies = [
 [[package]]
 name = "iced_tiny_skia"
 version = "0.12.1"
-source = "git+https://github.com/iced-rs/iced?rev=refs/tags/0.12.1#992572910aa33a2b2ac1ba9621b5dfeddfedb876"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8c2228781f4d381a1cbbd7905a9f077351aa8d37269094021d5d9e779f130aff"
 dependencies = [
  "bytemuck",
  "cosmic-text",
@@ -1126,7 +1134,8 @@ dependencies = [
 [[package]]
 name = "iced_wgpu"
 version = "0.12.1"
-source = "git+https://github.com/iced-rs/iced?rev=refs/tags/0.12.1#992572910aa33a2b2ac1ba9621b5dfeddfedb876"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e3c243b6700452886aac1ee1987e84d9fb43b56b53fea9a1eb67713fd0fde244"
 dependencies = [
  "bitflags 2.5.0",
  "bytemuck",
@@ -1142,8 +1151,9 @@ dependencies = [
 
 [[package]]
 name = "iced_widget"
-version = "0.12.1"
-source = "git+https://github.com/iced-rs/iced?rev=refs/tags/0.12.1#992572910aa33a2b2ac1ba9621b5dfeddfedb876"
+version = "0.12.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7e01b2212adecf1cb80e2267f302c0e0c263e55f97812056949199ccf9f0b908"
 dependencies = [
  "iced_renderer",
  "iced_runtime",
@@ -1155,8 +1165,9 @@ dependencies = [
 
 [[package]]
 name = "iced_winit"
-version = "0.12.1"
-source = "git+https://github.com/iced-rs/iced?rev=refs/tags/0.12.1#992572910aa33a2b2ac1ba9621b5dfeddfedb876"
+version = "0.12.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "63f66831d0e399b93f631739121a6171780d344b275d56808b9504d8ca75c7d2"
 dependencies = [
  "iced_graphics",
  "iced_runtime",
