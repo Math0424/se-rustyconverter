@@ -8,7 +8,6 @@ use iced::widget::{
     button, checkbox, column, combo_box, container, horizontal_space, row, scrollable, slider, text, text_editor, text_input, toggler, vertical_space, Column, Image, Space
 };
 use iced::{Command, Element, Settings, Theme, Length};
-use native_dialog::{FileDialog, MessageDialog, MessageType};
 
 use crate::window_options::{BitMode, DitherMode, InterpolationMode, LCDSize, LCDWindowData, WindowType};
 
@@ -19,7 +18,6 @@ pub enum WindowMessage {
     BitSelected(BitMode),
     InterpolationSelected(InterpolationMode),
     LCDSelected(LCDSize),
-    SetLCDSize(usize, usize),
     TrySetXLCDSize(String),
     TrySetYLCDSize(String),
 }
@@ -74,17 +72,19 @@ impl<'a> WindowType {
                     data.selected_lcd = value.into();
                 }
             },
-            WindowMessage::SetLCDSize(x, y) => {
+            WindowMessage::TrySetXLCDSize(value) => {
                 if let WindowType::LCDConverter(ref mut data) = self {
-                    data.size_x = x;
-                    data.size_y = y;
+                    if let Ok(number) = value.parse::<usize>() {
+                        data.size_x = number;
+                    } 
                 }
             },
-            WindowMessage::TrySetXLCDSize(value) => {
-
-            },
             WindowMessage::TrySetYLCDSize(value) => {
-
+                if let WindowType::LCDConverter(ref mut data) = self {
+                    if let Ok(number) = value.parse::<usize>() {
+                        data.size_y = number;
+                    } 
+                }
             },
         }
     }
@@ -122,9 +122,16 @@ impl<'a> WindowType {
             data.selected_lcd.as_ref(), 
             WindowMessage::LCDSelected);
 
-        let x_inp = text_input("x", &data.size_x.to_string());
-        let y_inp = text_input("y", &data.size_x.to_string());
+        let mut x_inp = text_input("x", &data.size_x.to_string());
+        let mut y_inp = text_input("y", &data.size_y.to_string());
     
+        if let Some(lcd) = &data.selected_lcd {
+            if lcd.0 == "Custom" {
+                x_inp = x_inp.on_input(WindowMessage::TrySetXLCDSize);
+                y_inp = y_inp.on_input(WindowMessage::TrySetYLCDSize);
+            }
+        }
+
         let lcd_options = row!(
             lcdtype_combo, 
             row![x_inp, text("x").horizontal_alignment(alignment::Horizontal::Center), y_inp].spacing(2)

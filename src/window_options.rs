@@ -7,7 +7,7 @@ pub struct LCDSize(pub String, pub usize, pub usize);
 
 impl LCDSize {
     pub fn all() -> [LCDSize; 5] {[
-        LCDSize("Custom".into(), 0, 0),
+        LCDSize("Custom".into(), 178, 178),
         LCDSize("Square".into(), 178, 178),
         LCDSize("Wide".into(), 178, 356),
         LCDSize("TextPanel".into(), 107, 178),
@@ -102,8 +102,8 @@ impl Default for LCDWindowData {
             interpolation: Some(InterpolationMode::default()),
             bit_mode: Some(BitMode::default()),
             selected_lcd: Some(LCDSize::default()),
-            size_x: 0, 
-            size_y: 0, 
+            size_x: 178, 
+            size_y: 178, 
         }
     }
 }
