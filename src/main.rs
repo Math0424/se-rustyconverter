@@ -7,8 +7,10 @@ use iced::widget::{
 use iced::{Command, Element, Settings, Theme, Length};
 use native_dialog::{FileDialog, MessageDialog, MessageType};
 use window_options::WindowType;
+use windows::WindowMessage;
 
 mod window_options;
+mod windows;
 
 pub fn main() -> iced::Result {
     set_var("DISABLE_LAYER_AMD_SWITCHABLE_GRAPHICS_1", "1");
@@ -33,6 +35,7 @@ pub enum Message {
     None(String),
     SelectFile,
     SelectWindow(WindowType),
+    WindowMessage(WindowMessage),
 }
 
 impl Sandbox for SEImageConverter {
@@ -41,13 +44,13 @@ impl Sandbox for SEImageConverter {
     fn new() -> SEImageConverter {
         SEImageConverter {
             window_options: combo_box::State::new(WindowType::ALL.to_vec()),
-            window_selected: Some(WindowType::LCDConverter),
+            window_selected: Some(WindowType::default()),
             file_text: "Select File".into(),
         }
     }
 
     fn title(&self) -> String {
-        String::from("SE-ImageConverter 2.0")
+        format!("SE-ImageConverter 2.0 - {}", self.window_selected.as_ref().unwrap().title())
     }
 
     fn update(&mut self, message: Self::Message) {
@@ -70,9 +73,13 @@ impl Sandbox for SEImageConverter {
                 
                 if let Some(x) = path.as_path().to_str() {
                     self.file_text = x.into();
+                    self.window_selected.as_mut().unwrap().update(WindowMessage::FileSelected(x.into()));
                 }
 
                 return
+            },
+            Message::WindowMessage(value) => {
+                self.window_selected.as_mut().unwrap().update(value);
             },
         }
 
@@ -94,9 +101,12 @@ impl Sandbox for SEImageConverter {
         
         let col = column![column![text("Select converter"), combo], file_bar].spacing(25);
 
-
-
-        container(col).width(Length::Fill).padding(10).into()
+        if let Some(x) = &self.window_selected {
+            let component_view = x.view().map(Message::WindowMessage);
+            container(column!(col, component_view)).width(Length::Fill).padding(10).into()
+        } else {
+            container(col).width(Length::Fill).padding(10).into()
+        }
     }
 
     fn theme(&self) -> iced::Theme {

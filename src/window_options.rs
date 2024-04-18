@@ -1,45 +1,33 @@
-pub enum ConverterWindow {
-    DisplayImage {
-        image: i32,
-    },
-    ImageScale {
-        max_x: i32,
-        max_y: i32,
-        curr_x: i32,
-        curr_y: i32,
-        slider_val: f32,
-    },
-    ImageOptions {
-        dither: DitherMode,
-    },
-    LCDImageOptions {
-        size: LCDSize,
-        size_x: i32,
-        size_y: i32,
-        bit: BitMode,
-    },
-}
+use std::path::Display;
 
+#[derive(Debug, Clone, Default)]
 pub enum LCDSize {
     Custom,
+    #[default]
     Square,
     Wide,
     TextPanel,
     DLCWide,
 }
 
+#[derive(Debug, Clone, Default)]
 pub enum BitMode {
+    #[default]
     ThreeBit,
     FiveBit,
 }
 
+#[derive(Debug, Clone, Default)]
 pub enum DitherMode {
     None,
     Riemersma,
+    #[default]
     FloydSteinberg,
 }
 
+#[derive(Debug, Clone, Default)]
 pub enum InterpolationMode {
+    #[default]
     None,
     Bilinear,
     Blend,
@@ -48,11 +36,17 @@ pub enum InterpolationMode {
     Spline,
 }
 
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+#[derive(Debug, Clone)]
 pub enum WindowType {
-    #[default]
-    LCDConverter,
+    LCDConverter {
+        selected_file: Option<String>,
+        dither: DitherMode,
+        interpolation: InterpolationMode,
+        bit_mode: BitMode,
+        selected_lcd: LCDSize,
+        size_x: usize,
+        size_y: usize,
+    },
     BlueprintConverter,
     LCDGifConverter,
     SpraysModConverter,
@@ -61,7 +55,15 @@ pub enum WindowType {
 
 impl WindowType {
     pub const ALL: [WindowType; 5] = [
-        WindowType::LCDConverter,
+        WindowType::LCDConverter {
+            selected_file: None, 
+            dither: DitherMode::FloydSteinberg, 
+            interpolation: InterpolationMode::Bilinear, 
+            bit_mode: BitMode::ThreeBit, 
+            selected_lcd: LCDSize::Square, 
+            size_x: 0, 
+            size_y: 0, 
+        },
         WindowType::BlueprintConverter,
         WindowType::LCDGifConverter,
         WindowType::SpraysModConverter,
@@ -69,18 +71,14 @@ impl WindowType {
     ];
 }
 
+impl Default for WindowType {
+    fn default() -> Self {
+        Self::ALL[0].clone()
+    }
+}
+
 impl std::fmt::Display for WindowType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "{}",
-            match self {
-                WindowType::LCDConverter => "LCDConverter",
-                WindowType::BlueprintConverter => "BlueprintConverter",
-                WindowType::LCDGifConverter => "LCDGifConverter",
-                WindowType::SpraysModConverter => "SpraysModConverter",
-                WindowType::DDSConverter => "DDSConverter",
-            }
-        )
+        write!(f, "{}", self.title())
     }
 }
