@@ -1,6 +1,8 @@
 extern crate derive_more;
+use std::path::PathBuf;
+
 use derive_more::{Add, Display, From, Into};
-use iced::widget::combo_box;
+use iced::widget::{combo_box, image};
 
 #[derive(Debug, Clone)]
 pub struct LCDSize(pub String, pub usize, pub usize);
@@ -75,6 +77,8 @@ impl InterpolationMode {
 
 #[derive(Debug, Clone)]
 pub struct LCDWindowData {
+    pub image_handle: Option<image::Handle>,
+
     pub dither_options: combo_box::State<DitherMode>,
     pub interpolation_options: combo_box::State<InterpolationMode>,
     pub lcd_options: combo_box::State<LCDSize>,
@@ -92,6 +96,8 @@ pub struct LCDWindowData {
 impl Default for LCDWindowData {
     fn default() -> Self {
         Self {
+            image_handle: None,
+
             dither_options: combo_box::State::new(DitherMode::ALL.to_vec()),
             interpolation_options: combo_box::State::new(InterpolationMode::ALL.to_vec()),
             lcd_options: combo_box::State::new(LCDSize::all().to_vec()),

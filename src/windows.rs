@@ -1,19 +1,22 @@
+use std::borrow::Borrow;
 use std::default;
 use std::env::set_var;
 use std::ops::BitAnd;
+use std::path::{Path, PathBuf};
 use iced::futures::io::empty;
 use iced::widget::shader::wgpu::naga::proc::Alignment;
 use iced::{alignment, command, executor, window, Rectangle, Sandbox, Size};
 use iced::widget::{
-    button, checkbox, column, combo_box, container, horizontal_space, row, scrollable, slider, text, text_editor, text_input, toggler, vertical_space, Column, Image, Space
+    button, checkbox, column, combo_box, container, horizontal_space, image, row, scrollable, slider, text, text_editor, text_input, toggler, vertical_space, Column, Image, Space
 };
-use iced::{Command, Element, Settings, Theme, Length};
+use iced::{Element, Length};
+use rfd::FileHandle;
 
 use crate::window_options::{BitMode, DitherMode, InterpolationMode, LCDSize, LCDWindowData, WindowType};
 
 #[derive(Debug, Clone)]
 pub enum WindowMessage {
-    FileSelected(String),
+    FileSelected(PathBuf),
     DitherSelected(DitherMode),
     BitSelected(BitMode),
     InterpolationSelected(InterpolationMode),
@@ -26,10 +29,10 @@ impl<'a> WindowType {
     pub fn view(&self) -> Element<WindowMessage> {
         match self {
             WindowType::LCDConverter(data) => Self::lcd_converter_view(data),
-            WindowType::BlueprintConverter => Self::creator("Blueprint").into(),
-            WindowType::LCDGifConverter => Self::creator("GIF").into(),
-            WindowType::SpraysModConverter => Self::creator("SpraysMod").into(),
-            WindowType::DDSConverter => Self::creator("DDS").into(),
+            WindowType::BlueprintConverter => Self::temp("Blueprint").into(),
+            WindowType::LCDGifConverter => Self::temp("GIF").into(),
+            WindowType::SpraysModConverter => Self::temp("SpraysMod").into(),
+            WindowType::DDSConverter => Self::temp("DDS").into(),
         }.into()
     }
 
@@ -47,7 +50,8 @@ impl<'a> WindowType {
         match msg {
             WindowMessage::FileSelected(value) => {
                 if let WindowType::LCDConverter(ref mut data) = self {
-                    data.selected_file = value.into();
+                    data.selected_file = Some(value.as_os_str().to_str().unwrap().to_string());
+                    data.image_handle = Some(image::Handle::from_path(&value));
                 }
             },
             WindowMessage::DitherSelected(value) => {
@@ -89,13 +93,16 @@ impl<'a> WindowType {
         }
     }
 
-    fn creator(title: &str) -> Column<'_, WindowMessage> {
+    fn temp(title: &str) -> Column<'_, WindowMessage> {
         column![text(title).size(50)].spacing(20)
     }
     
     fn lcd_converter_view(data: &'a LCDWindowData) -> Element<'a, WindowMessage> {
-        let image = Image::new(data.selected_file.clone().unwrap_or("none".into()).to_string()).width(Length::Fill).height(Length::Fill);
-        let img_container = container(image).padding(10);
+        let preview_img = Image::new(data.image_handle.clone().unwrap_or("none".into()))
+        .content_fit(iced::ContentFit::Contain);
+
+        let img_container = container(preview_img)
+        .width(Length::Fill).height(Length::Fill).padding(10);
 
         let dither_combo = combo_box(
             &data.dither_options,
