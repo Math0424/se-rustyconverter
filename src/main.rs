@@ -14,6 +14,7 @@ use windows::WindowMessage;
 
 mod window_options;
 mod windows;
+mod image_processor;
 
 pub fn main() -> iced::Result {
     //set_var("DISABLE_LAYER_AMD_SWITCHABLE_GRAPHICS_1", "1");
@@ -75,16 +76,14 @@ impl Application for SEImageConverter {
 
             Message::OpenFile(Ok(value)) => {
                 self.file_text = value.as_path().to_str().unwrap().to_string();
-                self.window_selected.as_mut().unwrap().update(WindowMessage::FileSelected(value.as_ref().into()));
-                Command::none()
+                self.window_selected.as_mut().unwrap().update(WindowMessage::FileSelected(value.as_ref().into()))
             },
-            Message::OpenFile(Err(value)) => {
+            Message::OpenFile(Err(_)) => {
                 Command::none()
             },
 
             Message::WindowMessage(value) => {
-                self.window_selected.as_mut().unwrap().update(value);
-                Command::none()
+                self.window_selected.as_mut().unwrap().update(value)
             }
         }
     }

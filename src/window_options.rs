@@ -1,8 +1,6 @@
 extern crate derive_more;
-use std::path::PathBuf;
-
-use derive_more::{Add, Display, From, Into};
-use iced::widget::{combo_box, image};
+use derive_more::Display;
+use iced::widget::combo_box;
 
 #[derive(Debug, Clone)]
 pub struct LCDSize(pub String, pub usize, pub usize);
@@ -56,28 +54,33 @@ impl DitherMode {
 #[derive(Debug, Clone, Default, Display)]
 pub enum InterpolationMode {
     #[default]
-    None,
-    Bilinear,
-    Blend,
-    Mesh,
+    Linear,
     Nearest,
-    Spline,
+    CatmullRom,
+    Gaussian,
 }
 
 impl InterpolationMode {
-    pub const ALL: [InterpolationMode; 6] = [
-        InterpolationMode::None,
-        InterpolationMode::Bilinear,
-        InterpolationMode::Blend,
-        InterpolationMode::Mesh,
+    pub fn convert(&self) -> image::imageops::FilterType {
+        match self {
+            InterpolationMode::Linear => image::imageops::FilterType::Triangle,
+            InterpolationMode::Nearest => image::imageops::FilterType::Nearest,
+            InterpolationMode::CatmullRom => image::imageops::FilterType::CatmullRom,
+            InterpolationMode::Gaussian => image::imageops::FilterType::Gaussian,
+        }
+    }
+ 
+    pub const ALL: [InterpolationMode; 4] = [
         InterpolationMode::Nearest,
-        InterpolationMode::Spline,
+        InterpolationMode::Linear,
+        InterpolationMode::CatmullRom,
+        InterpolationMode::Gaussian,
     ];
 }
 
 #[derive(Debug, Clone)]
 pub struct LCDWindowData {
-    pub image_handle: Option<image::Handle>,
+    pub image_handle: Option<iced::widget::image::Handle>,
 
     pub dither_options: combo_box::State<DitherMode>,
     pub interpolation_options: combo_box::State<InterpolationMode>,

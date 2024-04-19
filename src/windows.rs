@@ -1,18 +1,13 @@
-use std::borrow::Borrow;
-use std::default;
 use std::env::set_var;
-use std::ops::BitAnd;
 use std::path::{Path, PathBuf};
-use iced::futures::io::empty;
-use iced::widget::shader::wgpu::naga::proc::Alignment;
-use iced::{alignment, command, executor, window, Rectangle, Sandbox, Size};
+use iced::{alignment, Command};
 use iced::widget::{
-    button, checkbox, column, combo_box, container, horizontal_space, image, row, scrollable, slider, text, text_editor, text_input, toggler, vertical_space, Column, Image, Space
+    button, column, combo_box, container, image, row, text, text_input, Column
 };
 use iced::{Element, Length};
-use rfd::FileHandle;
 
 use crate::window_options::{BitMode, DitherMode, InterpolationMode, LCDSize, LCDWindowData, WindowType};
+use crate::{image_processor, Message};
 
 #[derive(Debug, Clone)]
 pub enum WindowMessage {
@@ -46,28 +41,42 @@ impl<'a> WindowType {
         }.into()
     }
 
-    pub fn update(&mut self, msg: WindowMessage) {
+    pub fn update(&mut self, msg: WindowMessage) -> Command<Message>  {
         match msg {
             WindowMessage::FileSelected(value) => {
                 if let WindowType::LCDConverter(ref mut data) = self {
                     data.selected_file = Some(value.as_os_str().to_str().unwrap().to_string());
-                    data.image_handle = Some(image::Handle::from_path(&value));
+                    let path = value.as_os_str().to_str().unwrap().to_string();
+                    let processed_image_result = crate::image_processor::process_image(path, data.interpolation.as_ref().unwrap().clone(), data.size_x, data.size_y);
+                
+                    match processed_image_result {
+                        Ok(bytes) => {
+                            data.image_handle = Some(image::Handle::from_memory(bytes));
+                        },
+                        Err(e) => {
+                            eprintln!("Error processing image: {:?}", e);
+                        }
+                    }
                 }
+                Command::none()
             },
             WindowMessage::DitherSelected(value) => {
                 if let WindowType::LCDConverter(ref mut data) = self {
                     data.dither = value.into();
                 }  
+                Command::none()
             },
             WindowMessage::BitSelected(value) => {
                 if let WindowType::LCDConverter(ref mut data) = self {
                     data.bit_mode = value.into();
                 }  
+                Command::none()
             },
             WindowMessage::InterpolationSelected(value) => {
                 if let WindowType::LCDConverter(ref mut data) = self {
                     data.interpolation = value.into();
                 }
+                Command::none()
             },
             WindowMessage::LCDSelected(value) => {
                 if let WindowType::LCDConverter(ref mut data) = self {
@@ -75,6 +84,7 @@ impl<'a> WindowType {
                     data.size_y = value.2;
                     data.selected_lcd = value.into();
                 }
+                Command::none()
             },
             WindowMessage::TrySetXLCDSize(value) => {
                 if let WindowType::LCDConverter(ref mut data) = self {
@@ -82,6 +92,7 @@ impl<'a> WindowType {
                         data.size_x = number;
                     } 
                 }
+                Command::none()
             },
             WindowMessage::TrySetYLCDSize(value) => {
                 if let WindowType::LCDConverter(ref mut data) = self {
@@ -89,6 +100,7 @@ impl<'a> WindowType {
                         data.size_y = number;
                     } 
                 }
+                Command::none()
             },
         }
     }
@@ -98,7 +110,7 @@ impl<'a> WindowType {
     }
     
     fn lcd_converter_view(data: &'a LCDWindowData) -> Element<'a, WindowMessage> {
-        let preview_img = Image::new(data.image_handle.clone().unwrap_or("none".into()))
+        let preview_img = iced::widget::Image::new(data.image_handle.clone().unwrap_or("none".into()))
         .content_fit(iced::ContentFit::Contain);
 
         let img_container = container(preview_img)
