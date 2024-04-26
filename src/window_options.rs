@@ -87,6 +87,7 @@ pub struct LCDWindowData {
     pub lcd_options: combo_box::State<LCDSize>,
     pub bit_options: combo_box::State<BitMode>,
 
+    pub preserve_aspect: bool,
     pub selected_file: Option<String>,
     pub dither: Option<DitherMode>,
     pub interpolation: Option<InterpolationMode>,
@@ -106,6 +107,7 @@ impl Default for LCDWindowData {
             lcd_options: combo_box::State::new(LCDSize::all().to_vec()),
             bit_options: combo_box::State::new(BitMode::ALL.to_vec()),
 
+            preserve_aspect: true,
             selected_file: None, 
             dither: Some(DitherMode::default()),
             interpolation: Some(InterpolationMode::default()),

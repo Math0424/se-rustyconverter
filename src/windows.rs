@@ -8,6 +8,7 @@ use iced::{Element, Length};
 
 use crate::window_options::{BitMode, DitherMode, InterpolationMode, LCDSize, LCDWindowData, WindowType};
 use crate::{image_processor, Message};
+use crate::image_processor::{process_lcd_image, to_raw_pixels};
 
 #[derive(Debug, Clone)]
 pub enum WindowMessage {
@@ -18,6 +19,8 @@ pub enum WindowMessage {
     LCDSelected(LCDSize),
     TrySetXLCDSize(String),
     TrySetYLCDSize(String),
+
+    LoadImage,
 }
 
 impl<'a> WindowType {
@@ -46,19 +49,10 @@ impl<'a> WindowType {
             WindowMessage::FileSelected(value) => {
                 if let WindowType::LCDConverter(ref mut data) = self {
                     data.selected_file = Some(value.as_os_str().to_str().unwrap().to_string());
-                    let path = value.as_os_str().to_str().unwrap().to_string();
-                    let processed_image_result = crate::image_processor::process_image(path, data.interpolation.as_ref().unwrap().clone(), data.size_x, data.size_y);
-                
-                    match processed_image_result {
-                        Ok(bytes) => {
-                            data.image_handle = Some(image::Handle::from_memory(bytes));
-                        },
-                        Err(e) => {
-                            eprintln!("Error processing image: {:?}", e);
-                        }
-                    }
+                    Command::perform(process_image(data), Message::WindowMessage)
+                } else {
+                    Command::none()
                 }
-                Command::none()
             },
             WindowMessage::DitherSelected(value) => {
                 if let WindowType::LCDConverter(ref mut data) = self {
@@ -102,6 +96,24 @@ impl<'a> WindowType {
                 }
                 Command::none()
             },
+            WindowMessage::LoadImage => {
+                if let WindowType::LCDConverter(ref mut data) = self {
+                    if let Some(path) = &data.selected_file {
+                        let processed_image_result = process_lcd_image(path.clone(), data.interpolation.as_ref().unwrap().clone(), data.preserve_aspect, data.size_x, data.size_y);
+                    
+                        match processed_image_result {
+                            Ok(img) => {
+                                let pixels = to_raw_pixels(img);
+                                data.image_handle = Some(image::Handle::from_pixels(pixels.1.0, pixels.1.1, pixels.0));
+                            },
+                            Err(e) => {
+                                eprintln!("Error processing image: {:?}", e);
+                            }
+                        }
+                    }
+                }
+                Command::none()
+            },
         }
     }
 
@@ -111,6 +123,8 @@ impl<'a> WindowType {
     
     fn lcd_converter_view(data: &'a LCDWindowData) -> Element<'a, WindowMessage> {
         let preview_img = iced::widget::Image::new(data.image_handle.clone().unwrap_or("none".into()))
+        .width(Length::Fill)
+        .height(Length::Fill)
         .content_fit(iced::ContentFit::Contain);
 
         let img_container = container(preview_img)
@@ -164,4 +178,23 @@ impl<'a> WindowType {
         .width(Length::Fill).height(Length::Fill)
         .into();
     }
+}
+
+
+
+async fn process_image(mut data: &LCDWindowData) -> WindowMessage {
+    if let Some(path) = &data.selected_file {
+        let processed_image_result = process_lcd_image(path.clone(), data.interpolation.as_ref().unwrap().clone(), data.preserve_aspect, data.size_x, data.size_y);
+    
+        match processed_image_result {
+            Ok(img) => {
+                let pixels = to_raw_pixels(img);
+                data.image_handle = Some(image::Handle::from_pixels(pixels.1.0, pixels.1.1, pixels.0));
+            },
+            Err(e) => {
+                eprintln!("Error processing image: {:?}", e);
+            }
+        }
+    }
+    WindowMessage::LoadImage
 }
